@@ -8,10 +8,18 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
+    <h1>JSON Combiner</h1>
+    <h2>by Jordan Guillou</h2>
+    <p>Select all the analytics{uid}.json files you've downloaded from Dropbox:</p>
     <input class ="file-input" type="file" name="client-file" id="get-files" multiple />
     <br>
     <br>
-    <button class="button" onclick="processFiles()">Process Files</button>
+    <p>Select this button to combine all the data together:</p>
+    <button class="button" onclick="generateData(false)">Generate All Data</button>
+    <br>
+    <br>
+    <p>Select this button to combine all the data together but only download the averages:</p>
+    <button class="button" onclick="generateData(true)">Generate Averages</button>
 	<script src="index.js"></script>
   </body>
 </html>

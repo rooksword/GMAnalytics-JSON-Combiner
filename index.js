@@ -1,4 +1,4 @@
-function processFiles()
+function generateData(generateAverage)
 {
     var inp = document.getElementById("get-files");
     const files = inp.files;
@@ -35,51 +35,36 @@ function processFiles()
                 let dataLength = data.length;
                 for (let j = 0; j < dataLength; j++)
                 {
-                    if (time_to_beat.length < data.length)
-                    {
-                        time_to_beat.push(data[j].time_to_beat);
-                        deaths.push(data[j].deaths);
-                    }
-                    else
-                    {
-                        time_to_beat[j] += data[j].time_to_beat;
-                        deaths[j] += data[j].deaths;
-                    }
+                    if (generateAverage) addAverages(j, time_to_beat, deaths, data);
+                    else addAll(j, time_to_beat, deaths, data);
                 }
 
                 filesProcessed++;
                 
                 if (filesProcessed === files.length)
                 {
-                    let time_to_beatLength = time_to_beat.length;
-                    for (let i = 0; i < time_to_beatLength; i++)
-                    {
-                        time_to_beat[i] /= files.length;
-                        deaths[i] /= files.length;
-                    }
+                    if (generateAverage) calculateAverages(i, time_to_beat, deaths, files);
 
-                    console.log(time_to_beat);
-                    console.log(deaths);
+                    // Create a JSON object with the average
+                    const averageObject = { time_to_beat, deaths };
 
-                    // // Create a JSON object with the average
-                    // const averageObject = { time_to_beat, deaths };
+                    // Convert JSON object to a Blob
+                    const blob = new Blob([JSON.stringify(averageObject, null, 2)], { type: 'application/json' });
 
-                    // // Convert JSON object to a Blob
-                    // const blob = new Blob([JSON.stringify(averageObject, null, 2)], { type: 'application/json' });
+                    // Create a URL for the Blob
+                    const url = URL.createObjectURL(blob);
 
-                    // // Create a URL for the Blob
-                    // const url = URL.createObjectURL(blob);
+                    // Create a link element to trigger the download
+                    const a = document.createElement('a');
+                    a.href = url;
+                    if (generateAverage) a.download = 'data_average.json';
+                    else a.download = 'data_all.json';
+                    document.body.appendChild(a); // Append the link to the body
+                    a.click(); // Simulate a click to trigger the download
 
-                    // // Create a link element to trigger the download
-                    // const a = document.createElement('a');
-                    // a.href = url;
-                    // a.download = 'average.json';
-                    // document.body.appendChild(a); // Append the link to the body
-                    // a.click(); // Simulate a click to trigger the download
-
-                    // // Clean up: remove the link and revoke the URL object
-                    // document.body.removeChild(a);
-                    // URL.revokeObjectURL(url);
+                    // Clean up: remove the link and revoke the URL object
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
                 }
             }
             catch (error)
@@ -89,5 +74,43 @@ function processFiles()
             }
         };
         reader.readAsText(file);
+    }
+}
+
+function addAll(j, time_to_beat, deaths, data)
+{
+    if (time_to_beat.length < data.length)
+    {
+        time_to_beat.push([data[j].time_to_beat]);
+        deaths.push([data[j].deaths]);
+    }
+    else
+    {
+        time_to_beat[j].push(data[j].time_to_beat);
+        deaths[j].push(data[j].deaths);
+    }
+}
+
+function addAverages(j, time_to_beat, deaths, data)
+{
+    if (time_to_beat.length < data.length)
+    {
+        time_to_beat.push(data[j].time_to_beat);
+        deaths.push(data[j].deaths);
+    }
+    else
+    {
+        time_to_beat[j] += data[j].time_to_beat;
+        deaths[j] += data[j].deaths;
+    }
+}
+
+function calculateAverages(i, time_to_beat, deaths, files)
+{
+    let time_to_beatLength = time_to_beat.length;
+    for (let i = 0; i < time_to_beatLength; i++)
+    {
+        time_to_beat[i] /= files.length;
+        deaths[i] /= files.length;
     }
 }
