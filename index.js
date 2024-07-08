@@ -61,25 +61,25 @@ function processFiles()
                     console.log(time_to_beat);
                     console.log(deaths);
 
-                    // Create a JSON object with the average
-                    const averageObject = { time_to_beat, deaths };
+                    // // Create a JSON object with the average
+                    // const averageObject = { time_to_beat, deaths };
 
-                    // Convert JSON object to a Blob
-                    const blob = new Blob([JSON.stringify(averageObject, null, 2)], { type: 'application/json' });
+                    // // Convert JSON object to a Blob
+                    // const blob = new Blob([JSON.stringify(averageObject, null, 2)], { type: 'application/json' });
 
-                    // Create a URL for the Blob
-                    const url = URL.createObjectURL(blob);
+                    // // Create a URL for the Blob
+                    // const url = URL.createObjectURL(blob);
 
-                    // Create a link element to trigger the download
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'average.json';
-                    document.body.appendChild(a); // Append the link to the body
-                    a.click(); // Simulate a click to trigger the download
+                    // // Create a link element to trigger the download
+                    // const a = document.createElement('a');
+                    // a.href = url;
+                    // a.download = 'average.json';
+                    // document.body.appendChild(a); // Append the link to the body
+                    // a.click(); // Simulate a click to trigger the download
 
-                    // Clean up: remove the link and revoke the URL object
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
+                    // // Clean up: remove the link and revoke the URL object
+                    // document.body.removeChild(a);
+                    // URL.revokeObjectURL(url);
                 }
             }
             catch (error)
