@@ -1,1 +1,1 @@
-Hosted at: https://rooksword.github.io/JSON-Averager/
+Hosted at: https://rooksword.github.io/GMAnalytics-JSON-Combiner/
