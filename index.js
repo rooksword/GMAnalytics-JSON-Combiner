@@ -3,69 +3,101 @@ function generateData(generateAverage)
     var inp = document.getElementById("get-files");
     const files = inp.files;
 
-    let time_to_beat = [];
-    let deaths = [];
+    let filesProcessed = 0; // How many files processed
+    let filesLength = files.length; // Amount of files to process
 
-    let filesProcessed = 0;
-    let filesLength = files.length;
-
-    if (filesLength === 0)
+    if (filesLength === 0) // If amount of files is equal to 0
     {
         console.log('No files selected');
         return;
     }
 
-    for (let i = 0; i < filesLength; i++)
+    let keys = -1;
+    let save_object = {};
+
+    for (let i = 0; i < filesLength; i++) // Iterate through all files
     {
-        const file = files[i];
+        const file = files[i]; // Current file
+
         console.log(`File name: ${file.name}, Size: ${file.size} bytes`);
 
         // Example: Read file content (assuming it's JSON)
+
         const reader = new FileReader();
         reader.onload = function(event)
         {
+            
             let content = event.target.result;
             if (content.endsWith('\0')) {
                 content = content.slice(0, -1);
             }
             try {
                 const data = JSON.parse(content);
+                
+                let name = file.name;
+
+                if (!generateAverage) save_object[name] = {};        
+
+                if (keys == -1)
+                {
+                    keys = Object.keys(data[0]);
+
+                    if (generateAverage)
+                    {
+                        keys.forEach(str => {
+                            // Add each string as a key with an empty array as its value
+                            save_object[str] = [];
+                        });
+                    }
+
+                    console.log("Keys initialized");
+                }
+
+                if (!generateAverage)
+                {
+                    keys.forEach(str => {
+                        // Add each string as a key with an empty array as its value
+                        save_object[name][str] = [];
+                    });
+                }
+
                 // Process data here (calculate average, etc.)
 
                 let dataLength = data.length;
                 for (let j = 0; j < dataLength; j++)
                 {
-                    if (generateAverage) addAverages(j, time_to_beat, deaths, data);
-                    else addAll(j, time_to_beat, deaths, data);
+                    let level_data = data[j];
+
+                    if (generateAverage) addAverages(keys, save_object, level_data);
+                    else addAll(keys, save_object[name], level_data);
                 }
+
+                console.log(save_object)
 
                 filesProcessed++;
                 
-                if (filesProcessed === files.length)
-                {
-                    if (generateAverage) calculateAverages(i, time_to_beat, deaths, files);
+                // if (filesProcessed === files.length)
+                // {
+                //     if (generateAverage) calculateAverages(save_object, files);
 
-                    // Create a JSON object with the average
-                    const averageObject = { time_to_beat, deaths };
+                //     // Convert JSON object to a Blob
+                //     const blob = new Blob([JSON.stringify(save_object, null, 2)], { type: 'application/json' });
 
-                    // Convert JSON object to a Blob
-                    const blob = new Blob([JSON.stringify(averageObject, null, 2)], { type: 'application/json' });
+                //     // Create a URL for the Blob
+                //     const url = URL.createObjectURL(blob);
 
-                    // Create a URL for the Blob
-                    const url = URL.createObjectURL(blob);
+                //     // Create a link element to trigger the download
+                //     const a = document.createElement('a');
+                //     a.href = url;
+                //     if (generateAverage) a.download = 'data_average.json';
+                //     else a.download = 'data_all.json';
+                //     document.body.appendChild(a); // Append the link to the body
+                //     a.click(); // Simulate a click to trigger the download
 
-                    // Create a link element to trigger the download
-                    const a = document.createElement('a');
-                    a.href = url;
-                    if (generateAverage) a.download = 'data_average.json';
-                    else a.download = 'data_all.json';
-                    document.body.appendChild(a); // Append the link to the body
-                    a.click(); // Simulate a click to trigger the download
-
-                    // Clean up: remove the link and revoke the URL object
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                }
+                //     // Clean up: remove the link and revoke the URL object
+                //     document.body.removeChild(a);
+                //     URL.revokeObjectURL(url);
+                // }
             }
             catch (error)
             {
@@ -74,43 +106,5 @@ function generateData(generateAverage)
             }
         };
         reader.readAsText(file);
-    }
-}
-
-function addAll(j, time_to_beat, deaths, data)
-{
-    if (time_to_beat.length < data.length)
-    {
-        time_to_beat.push([data[j].time_to_beat]);
-        deaths.push([data[j].deaths]);
-    }
-    else
-    {
-        time_to_beat[j].push(data[j].time_to_beat);
-        deaths[j].push(data[j].deaths);
-    }
-}
-
-function addAverages(j, time_to_beat, deaths, data)
-{
-    if (time_to_beat.length < data.length)
-    {
-        time_to_beat.push(data[j].time_to_beat);
-        deaths.push(data[j].deaths);
-    }
-    else
-    {
-        time_to_beat[j] += data[j].time_to_beat;
-        deaths[j] += data[j].deaths;
-    }
-}
-
-function calculateAverages(i, time_to_beat, deaths, files)
-{
-    let time_to_beatLength = time_to_beat.length;
-    for (let i = 0; i < time_to_beatLength; i++)
-    {
-        time_to_beat[i] /= files.length;
-        deaths[i] /= files.length;
     }
 }
