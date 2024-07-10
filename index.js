@@ -1,4 +1,4 @@
-function generateData(generateAverage)
+function generateData()
 {
     var inp = document.getElementById("get-files");
     const files = inp.files;
@@ -36,68 +36,50 @@ function generateData(generateAverage)
                 
                 let name = file.name;
 
-                if (!generateAverage) save_object[name] = {};        
+                save_object[name] = {};        
 
                 if (keys == -1)
                 {
                     keys = Object.keys(data[0]);
-
-                    if (generateAverage)
-                    {
-                        keys.forEach(str => {
-                            // Add each string as a key with an empty array as its value
-                            save_object[str] = [];
-                        });
-                    }
-
                     console.log("Keys initialized");
                 }
 
-                if (!generateAverage)
-                {
-                    keys.forEach(str => {
-                        // Add each string as a key with an empty array as its value
-                        save_object[name][str] = [];
-                    });
-                }
+                keys.forEach(str => {
+                    // Add each string as a key with an empty array as its value
+                    save_object[name][str] = [];
+                });
 
-                // Process data here (calculate average, etc.)
+                // Process data here
 
                 let dataLength = data.length;
                 for (let j = 0; j < dataLength; j++)
                 {
                     let level_data = data[j];
 
-                    if (generateAverage) addAverages(keys, save_object, level_data);
-                    else addAll(keys, save_object[name], level_data);
+                    addAll(keys, save_object[name], level_data);
                 }
-
-                console.log(save_object)
 
                 filesProcessed++;
                 
-                // if (filesProcessed === files.length)
-                // {
-                //     if (generateAverage) calculateAverages(save_object, files);
+                if (filesProcessed === files.length)
+                {
+                    // Convert JSON object to a Blob
+                    const blob = new Blob([JSON.stringify(save_object, null, 2)], { type: 'application/json' });
 
-                //     // Convert JSON object to a Blob
-                //     const blob = new Blob([JSON.stringify(save_object, null, 2)], { type: 'application/json' });
+                    // Create a URL for the Blob
+                    const url = URL.createObjectURL(blob);
 
-                //     // Create a URL for the Blob
-                //     const url = URL.createObjectURL(blob);
+                    // Create a link element to trigger the download
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'data.json';
+                    document.body.appendChild(a); // Append the link to the body
+                    a.click(); // Simulate a click to trigger the download
 
-                //     // Create a link element to trigger the download
-                //     const a = document.createElement('a');
-                //     a.href = url;
-                //     if (generateAverage) a.download = 'data_average.json';
-                //     else a.download = 'data_all.json';
-                //     document.body.appendChild(a); // Append the link to the body
-                //     a.click(); // Simulate a click to trigger the download
-
-                //     // Clean up: remove the link and revoke the URL object
-                //     document.body.removeChild(a);
-                //     URL.revokeObjectURL(url);
-                // }
+                    // Clean up: remove the link and revoke the URL object
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
             }
             catch (error)
             {
@@ -107,4 +89,15 @@ function generateData(generateAverage)
         };
         reader.readAsText(file);
     }
+}
+
+function addAll(keys, save_object, level_data)
+{
+    Object.keys(level_data).forEach(key => {
+        // Check if the key exists in myStruct
+        if (save_object.hasOwnProperty(key)) {
+            // Push the number into the array in myStruct
+            save_object[key].push(level_data[key]);
+        }
+    });
 }
